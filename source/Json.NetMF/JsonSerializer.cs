@@ -7,7 +7,6 @@ using System.Text;
 #if (NANOFRAMEWORK_1_0)
 namespace nanoFramework.Json
 #else
-using Microsoft.SPOT;
 
 namespace Json.NETMF
 #endif
@@ -79,7 +78,13 @@ namespace Json.NETMF
                         return (bool)o ? "true" : "false";
                     }
                 case "String":
+                    {
+                        return SerializeString(o as string);
+                    }
                 case "Char":
+                    {
+                        return SerializeString(o.ToString());
+                    }
                 case "Guid":
                     {
                         return "\"" + o.ToString() + "\"";
@@ -125,14 +130,6 @@ namespace Json.NETMF
             {
                 IEnumerable enumerable = o as IEnumerable;
                 return SerializeIEnumerable(enumerable, dateTimeFormat);
-            }
-
-            if (type == typeof(System.Collections.DictionaryEntry))
-            {
-                DictionaryEntry entry = o as DictionaryEntry;
-                Hashtable hashtable = new Hashtable();
-                hashtable.Add(entry.Key, entry.Value);
-                return SerializeIDictionary(hashtable, dateTimeFormat);
             }
 
             if (type.IsClass)
@@ -229,21 +226,52 @@ namespace Json.NETMF
         /// </summary>
         /// <param name="str">The string to serialize.</param>
         /// <returns>The serialized JSON string.</returns>
-        protected static string SerializeString(String str)
+        protected static string SerializeString(string str)
         {
-            // If the string is just fine (most are) then make a quick exit for improved performance
-            if (str.IndexOf('\\') < 0 && str.IndexOf('\"') < 0)
-                return str;
-
             // Build a new string
             StringBuilder result = new StringBuilder(str.Length + 1); // we know there is at least 1 char to escape
             foreach (char ch in str.ToCharArray())
             {
-                if (ch == '\\' || ch == '\"')
-                    result.Append('\\');
-                result.Append(ch);
+                result.Append(ch switch
+                {
+                    '\\' => "\\\\",
+                    '"' => "\\\"",
+                    '\x00' => "\\u0000",
+                    '\x01' => "\\u0001",
+                    '\x02' => "\\u0002",
+                    '\x03' => "\\u0003",
+                    '\x04' => "\\u0004",
+                    '\x05' => "\\u0005",
+                    '\x06' => "\\u0006",
+                    '\x07' => "\\u0007",
+                    '\b' => "\\b",
+                    '\x09' => "\\u0009",
+                    '\n' => "\\n",
+                    '\x0b' => "\\u000b",
+                    '\x0c' => "\\u000c",
+                    '\r' => "\\r",
+                    '\x0e' => "\\u000e",
+                    '\x0f' => "\\u000f",
+                    '\x10' => "\\u0010",
+                    '\x11' => "\\u0011",
+                    '\x12' => "\\u0012",
+                    '\x13' => "\\u0013",
+                    '\x14' => "\\u0014",
+                    '\x15' => "\\u0015",
+                    '\x16' => "\\u0016",
+                    '\x17' => "\\u0017",
+                    '\x18' => "\\u0018",
+                    '\x19' => "\\u0019",
+                    '\x1a' => "\\u001a",
+                    '\x1b' => "\\u001b",
+                    '\x1c' => "\\u001c",
+                    '\x1d' => "\\u001d",
+                    '\x1e' => "\\u001e",
+                    '\x1f' => "\\u001f",
+                    _ => ch,
+                });
             }
-            return result.ToString();
+            return "\"" + result.ToString() + "\"";
         }
 
   }

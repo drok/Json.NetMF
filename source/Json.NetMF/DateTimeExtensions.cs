@@ -4,7 +4,7 @@ using System;
 #if (NANOFRAMEWORK_1_0)
 namespace nanoFramework.Json
 #else
-using Microsoft.SPOT;
+// using Microsoft.SPOT;
 
 namespace Json.NETMF
 #endif

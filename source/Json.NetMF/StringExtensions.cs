@@ -5,7 +5,6 @@ using System.Collections;
 #if (NANOFRAMEWORK_1_0)
 namespace nanoFramework.Json
 #else
-using Microsoft.SPOT;
 
 namespace Json.NETMF
 #endif
